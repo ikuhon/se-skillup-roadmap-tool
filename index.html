@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SE向けスキルアップロードマップツール</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .path-selector {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .selector-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+        }
+
+        .path-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .path-option {
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .path-option:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .path-option.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .path-option h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .path-option p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .experience-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .experience-option {
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .experience-option:hover {
+            border-color: #38a169;
+        }
+
+        .experience-option.active {
+            border-color: #38a169;
+            background: #38a169;
+            color: white;
+        }
+
+        .roadmap-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .phase-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phase-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 50%;
+            transform: translate(30px, -30px);
+        }
+
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .phase-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .phase-duration {
+            padding: 5px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .skills-section {
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .skills-category {
+            margin-bottom: 15px;
+        }
+
+        .skills-category h4 {
+            font-size: 1rem;
+            color: #4a5568;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .skill-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border-left: 3px solid #38a169;
+        }
+
+        .skill-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .skill-priority {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .priority-high {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .priority-medium {
+            background: #fefcbf;
+            color: #d69e2e;
+        }
+
+        .priority-low {
+            background: #c6f6d5;
+            color: #2f855a;
+        }
+
+        .resources-section {
+            position: relative;
+            z-index: 1;
+        }
+
+        .resources-section h4 {
+            font-size: 1rem;
+            color: #4a5568;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .resource-item {
+            display: flex;
+            align-items: center;
+            padding: 6px 0;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .resource-item:hover {
+            color: #5a67d8;
+            text-decoration: underline;
+        }
+
+        .progress-tracker {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .progress-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+        }
+
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #4a5568;
+            margin-top: 5px;
+        }
+
+        .overall-progress {
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .tips-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .tips-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .tip-item {
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .tip-item h4 {
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .tip-item p {
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .roadmap-container {
+                grid-template-columns: 1fr;
+            }
+
+            .path-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗺️ SE向けスキルアップロードマップ</h1>
+            <p>あなたのキャリア目標に合わせた最適な学習パスを見つけよう</p>
+        </div>
+
+        <div class="path-selector">
+            <h2 class="selector-title">🎯 キャリアパスを選択</h2>
+            <div class="path-options" id="pathOptions">
+                <!-- パスオプションが動的に生成されます -->
+            </div>
+            
+            <h3 style="margin: 20px 0 10px 0; color: #4a5568;">📊 現在の経験レベル</h3>
+            <div class="experience-selector" id="experienceSelector">
+                <!-- 経験レベルオプションが動的に生成されます -->
+            </div>
+        </div>
+
+        <div class="progress-tracker">
+            <h2 class="progress-title">📈 学習進捗トラッカー</h2>
+            <div class="progress-stats" id="progressStats">
+                <!-- 進捗統計が動的に生成されます -->
+            </div>
+            <div class="overall-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="overallProgressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">全体進捗: 0%</div>
+            </div>
+        </div>
+
+        <div class="roadmap-container" id="roadmapContainer">
+            <!-- ロードマップカードが動的に生成されます -->
+        </div>
+
+        <div class="tips-section">
+            <h2 class="tips-title">💡 効率的な学習のコツ</h2>
+            <div class="tips-grid">
+                <div class="tip-item">
+                    <h4>🎯 優先順位を明確に</h4>
+                    <p>現在の業務に直結するスキルから学習を始め、段階的に専門性を広げていきましょう。</p>
+                </div>
+                <div class="tip-item">
+                    <h4>🔄 実践的な学習</h4>
+                    <p>理論だけでなく、個人プロジェクトや業務での実践を通じてスキルを定着させましょう。</p>
+                </div>
+                <div class="tip-item">
+                    <h4>📝 アウトプット重視</h4>
+                    <p>ブログ執筆、勉強会発表、GitHub公開などでアウトプットし、知識を定着させましょう。</p>
+                </div>
+                <div class="tip-item">
+                    <h4>🤝 コミュニティ参加</h4>
+                    <p>技術コミュニティや勉強会に参加し、同じ目標を持つ仲間と切磋琢磨しましょう。</p>
+                </div>
+                <div class="tip-item">
+                    <h4>⏰ 継続的な学習</h4>
+                    <p>毎日少しずつでも継続的に学習し、長期的な視点でスキルアップを図りましょう。</p>
+                </div>
+                <div class="tip-item">
+                    <h4>🔍 市場価値を意識</h4>
+                    <p>求人情報や業界動向をチェックし、市場価値の高いスキルを優先的に学習しましょう。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // キャリアパスのデータ
+        const careerPaths = {
+            'web-frontend': {
+                name: 'Webフロントエンド',
+                description: 'UI/UX重視の開発者',
+                icon: '🎨',
+                phases: [
+                    {
+                        title: '基礎習得期',
+                        duration: '3-6ヶ月',
+                        skills: {
+                            '必須スキル': [
+                                { name: 'HTML5/CSS3', priority: 'high' },
+                                { name: 'JavaScript (ES6+)', priority: 'high' },
+                                { name: 'Git/GitHub', priority: 'high' },
+                                { name: 'レスポンシブデザイン', priority: 'medium' }
+                            ],
+                            '推奨スキル': [
+                                { name: 'Sass/SCSS', priority: 'medium' },
+                                { name: 'npm/yarn', priority: 'medium' },
+                                { name: 'Webpack基礎', priority: 'low' }
+                            ]
+                        },
+                        resources: [
+                            '📚 MDN Web Docs',
+                            '🎥 Udemy JavaScript完全ガイド',
+                            '💻 freeCodeCamp',
+                            '📖 JavaScript Primer'
+                        ]
+                    },
+                    {
+                        title: 'フレームワーク習得期',
+                        duration: '6-12ヶ月',
+                        skills: {
+                            '必須スキル': [
+                                { name: 'React.js', priority: 'high' },
+                                { name: 'TypeScript', priority: 'high' },
+                                { name: 'Next.js', priority: 'medium' },
+                                { name: 'Tailwind CSS', priority: 'medium' }
+                            ],
+                            '推奨スキル': [
+                                { name: 'Redux/Zustand', priority: 'medium' },
+                                { name: 'React Hook Form', priority: 'low' },
+                                { name: 'Jest/Testing Library', priority: 'low' }
+                            ]
+                        },
+                        resources: [
+                            '📚 React公式ドキュメント',
+                            '🎥 React完全ガイド',
+                            '💻 TypeScript Handbook',
+                            '🛠️ Next.js Learn'
+                        ]
+                    },
+                    {
+                        title: '実践・応用期',
+                        duration: '12-24ヶ月',
+                        skills: {
+                            '必須スキル': [
+                                { name: 'パフォーマンス最適化', priority: 'high' },
+                                { name: 'PWA開発', priority: 'medium' },
+                                { name: 'GraphQL', priority: 'medium' },
+                                { name: 'CI/CD', priority: 'medium' }
+                            ],
+                            '推奨スキル': [
+                                { name: 'Storybook', priority: 'low' },
+                                { name: 'Micro Frontends', priority: 'low' },
+                                { name: 'WebAssembly', priority: 'low' }
+                            ]
+                        },
+                        resources: [
+                            '📚 Web Performance in Action',
+                            '🎥 Advanced React Patterns',
+                            '💻 PWA Workshop',
+                            '🛠️ GraphQL公式ガイド'
+                        ]
+                    }
+                ]
+            },
+            'web-backend': {
+                name: 'Webバックエンド',
+                description: 'サーバーサイド開発者',
+                icon: '⚙️',
+                phases: [
+                    {
+                        title: '基礎習得期',
+                        duration: '3-6ヶ月',
+                        skills: {
+                            '必須スキル': [
+                                { name: 'Python/Java/Node.js', priority: 'high' },
+                                { name: 'SQL基礎', priority: 'high' },
+                                { name: 'HTTP/RESTful API', priority: 'high' },
+                                { name: 'Git/GitHub', priority: 'high' }
+                            ],
+                            '推奨スキル': [
+                                { name: 'Linux基礎', priority: 'medium' },
+                                { name: 'Docker基礎', priority: 'medium' },
+                                { name: 'JSON/XML', priority: 'low' }
+                            ]
+                        },
+                        resources: [
+                            '📚 Python公式チュートリアル',
+                            '🎥 SQL完全ガイド',
+                            '💻 REST API設計ガイド',
+                            '🛠️ Docker公式ドキュメント'
+                        ]
+                    },
+                    {
+                        title: 'フレームワーク習得期',
+                        duration: '6-12ヶ月',
+                        skills: {
+                            '必須スキル': [
+                                { name: 'Django/Flask/Express', priority: 'high' },
+                                { name: 'PostgreSQL/MySQL', priority: 'high' },
+                                { name: 'Redis/Memcached', priority: 'medium' },
+                                { name: 'JWT認証', priority: 'medium' }
+                            ],
+                            '推奨スキル': [
+                                { name: 'GraphQL', priority: 'medium' },
+                                { name: 'Elasticsearch', priority: 'low' },
+                                { name: 'Message Queue', priority: 'low' }
+                            ]
+                        },
+                        resources: [
+                            '📚 Django公式ドキュメント',
+                            '🎥 Node.js完全ガイド',
+                            '💻 PostgreSQL実践ガイド',
+                            '🛠️ Redis公式チュートリアル'
+                        ]
+                    },
+                    {
+                        title: '実践・応用期',
+                        duration: '12-24ヶ月',
+                        skills: {
+                            '必須スキル': [
+                                { name: 'マイクロサービス', priority: 'high' },
+                                { name: 'Kubernetes', priority: 'medium' },
+                                { name: 'AWS/GCP/Azure', priority: 'high' },
+                                { name: 'モニタリング・ログ管理', priority: 'medium' }
+                            ],
+                            '推奨スキル': [
+                                { name: 'Terraform', priority: 'low' },
+                                { name: 'gRPC', priority: 'low' },
+                                { name: 'Serverless', priority: 'medium' }
+                            ]
+                        },
+                        resources: [
+                            '📚 Building Microservices',
+                            '🎥 Kubernetes実践ガイド',
+                            '💻 AWS Solutions Architect',
+                            '🛠️ Prometheus/Grafana'
+                        ]
+                    }
+                ]
+            },
+            'infrastructure': {
+                name: 'インフラエンジニア',
+                description: 'システム基盤の専門家',
+                icon: '🏗️',
+                phases: [
+                    {
+                        title: '基礎習得期',
+                        duration: '3-6ヶ月',
+                        skills: {
+                            '必須スキル': [
+                                { name: 'Linux基礎', priority: 'high' },
+                                { name: 'ネットワーク基礎', priority: 'high' },
+                                { name: 'Shell Script', priority: 'high' },
+                                { name: 'SSH/SCP', priority: 'medium' }
+                            ],
+                            '推奨スキル': [
+                                { name: 'Windows Server', priority: 'medium' },
+                                { name: 'VMware基礎', priority: 'medium' },
+                                { name: 'DNS/DHCP', priority: 'low' }
+                            ]
+                        },
+                        resources: [
+                            '📚 LPIC Level1 Study Guide',
+                            '🎥 ネットワーク完全ガイド',
+                            '💻 Linux実践ガイド',
+                            '🛠️ Bash Scripting Tutorial'
+                        ]
+                    },
+                    {
+                        title: 'クラウド習得期',
+                        duration: '6-12ヶ月',
+                        skills: {
+                            '必須スキル': [
+                                { name: 'AWS/Azure/GCP', priority: 'high' },
+                                { name: 'Docker/Container', priority: 'high' },
+                                { name: 'Terraform/Ansible', priority: 'medium' },
+                                { name: 'CI/CD Pipeline', priority: 'medium' }
+                            ],
+                            '推奨スキル': [
+                                { name: 'Kubernetes', priority: 'medium' },
+                                { name: 'Monitoring (Zabbix)', priority: 'low' },
+                                { name: 'Load Balancer', priority: 'low' }
+                            ]
+                        },
+                        resources: [
+                            '📚 AWS Solutions Architect',
+                            '🎥 Docker完全ガイド',
+                            '💻 Terraform公式ガイド',
+                            '🛠️ Ansible Playbook'
+                        ]
+                    },
+                    {
+                        title: '実践・応用期',
+                        duration: '12-24ヶ月',
+                        skills: {
+                            '必須スキル': [
+                                { name: 'SRE/DevOps', priority: 'high' },
+                                { name: 'セキュリティ対策', priority: 'high' },
+                                { name: 'コスト最適化', priority: 'medium' },
+                                { name: '災害復旧計画', priority: 'medium' }
+                            ],
+                            '推奨スキル': [
+                                { name: 'Service Mesh', priority: 'low' },
+                                { name: 'GitOps', priority: 'low' },
+                                { name: 'Multi-Cloud', priority: 'low' }
+                            ]
+                        },
+                        resources: [
+                            '📚 Site Reliability Engineering',
+                            '🎥 DevOps実践ガイド',
+                            '💻 AWS Security Best Practices',
+                            '🛠️ Istio Service Mesh'
+                        ]
+                    }
+                ]
+            },
+            'data-science': {
+                name: 'データサイエンティスト',
+                description: 'データ分析・AI専門家',
+                icon: '📊',
+                phases: [
+                    {
+                        title: '基礎習得期',
+                        duration: '6-9ヶ月',
+                        skills: {
+                            '必須スキル': [
+                                { name: 'Python基礎', priority: 'high' },
+                                { name: '統計学基礎', priority: 'high' },
+                                { name: 'SQL', priority: 'high' },
+                                { name: 'Pandas/NumPy', priority: 'high' }
+                            ],
+                            '推奨スキル': [
+                                { name: 'R言語', priority: 'medium' },
+                                { name: 'Excel/スプレッドシート', priority: 'medium' },
+                                { name: 'Jupyter Notebook', priority: 'low' }
+                            ]
+                        },
+                        resources: [
+                            '📚 Pythonによるデータ分析入門',
+                            '🎥 統計学の基礎',
+                            '💻 Kaggle Learn',
+                            '🛠️ Pandas公式ドキュメント'
+                        ]
+                    },
+                    {
+                        title: '機械学習習得期',
+                        duration: '9-18ヶ月',
+                        skills: {
+                            '必須スキル': [
+                                { name: 'Scikit-learn', priority: 'high' },
+                                { name: 'データ可視化 (Matplotlib/Seaborn)', priority: 'high' },
+                                { name: '機械学習アルゴリズム', priority: 'high' },
+                                { name: '特徴量エンジニアリング', priority: 'medium' }
+                            ],
+                            '推奨スキル': [
+                                { name: 'TensorFlow/PyTorch', priority: 'medium' },
+                                { name: 'A/Bテスト', priority: 'medium' },
+                                { name: 'Git/MLflow', priority: 'low' }
+                            ]
+                        },
+                        resources: [
+                            '📚 Hands-On Machine Learning',
+                            '🎥 Andrew Ng Machine Learning',
+                            '💻 Scikit-learn公式ガイド',
+                            '🛠️ Kaggle Competitions'
+                        ]
+                    },
+                    {
+                        title: '実践・応用期',
+                        duration: '18-36ヶ月',
+                        skills: {
+                            '必須スキル': [
+                                { name: 'ディープラーニング', priority: 'high' },
+                                { name: 'BigData処理 (Spark)', priority: 'medium' },
+                                { name: 'MLOps', priority: 'medium' },
+                                { name: 'ビジネス課題解決', priority: 'high' }
+                            ],
+                            '推奨スキル': [
+                                { name: 'NLP/コンピュータビジョン', priority: 'medium' },
+                                { name: 'クラウドML (AWS/GCP)', priority: 'low' },
+                                { name: 'Docker/Kubernetes', priority: 'low' }
+                            ]
+                        },
+                        resources: [
+                            '📚 Deep Learning (Ian Goodfellow)',
+                            '🎥 Fast.ai Deep Learning',
+                            '💻 Apache Spark公式ガイド',
+                            '🛠️ MLflow/Kubeflow'
+                        ]
+                    }
+                ]
+            }
+        };
+
+        const experienceLevels = [
+            { id: 'beginner', name: '未経験〜2年', description: '基礎から学習' },
+            { id: 'intermediate', name: '3〜5年', description: '専門性を深める' },
+            { id: 'senior', name: '6年以上', description: '高度な技術を習得' }
+        ];
+
+        let selectedPath = 'web-frontend';
+        let selectedExperience = 'beginner';
+        let completedSkills = JSON.parse(localStorage.getItem('completedSkills') || '{}');
+
+        function initializeApp() {
+            renderPathOptions();
+            renderExperienceSelector();
+            renderRoadmap();
+            updateProgress();
+        }
+
+        function renderPathOptions() {
+            const container = document.getElementById('pathOptions');
+            container.innerHTML = Object.entries(careerPaths).map(([key, path]) => `
+                <div class="path-option ${key === selectedPath ? 'active' : ''}" 
+                     onclick="selectPath('${key}')">
+                    <h3>${path.icon} ${path.name}</h3>
+                    <p>${path.description}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderExperienceSelector() {
+            const container = document.getElementById('experienceSelector');
+            container.innerHTML = experienceLevels.map(level => `
+                <div class="experience-option ${level.id === selectedExperience ? 'active' : ''}" 
+                     onclick="selectExperience('${level.id}')">
+                    <strong>${level.name}</strong><br>
+                    <small>${level.description}</small>
+                </div>
+            `).join('');
+        }
+
+        function renderRoadmap() {
+            const container = document.getElementById('roadmapContainer');
+            const path = careerPaths[selectedPath];
+            
+            // 経験レベルに応じてフェーズを調整
+            let startPhase = 0;
+            if (selectedExperience === 'intermediate') startPhase = 1;
+            if (selectedExperience === 'senior') startPhase = 2;
+
+            container.innerHTML = path.phases.slice(startPhase).map((phase, index) => `
+                <div class="phase-card">
+                    <div class="phase-header">
+                        <h3 class="phase-title">${phase.title}</h3>
+                        <span class="phase-duration">${phase.duration}</span>
+                    </div>
+                    
+                    ${Object.entries(phase.skills).map(([category, skills]) => `
+                        <div class="skills-section">
+                            <div class="skills-category">
+                                <h4>🎯 ${category}</h4>
+                                ${skills.map(skill => {
+                                    const skillKey = `${selectedPath}-${phase.title}-${skill.name}`;
+                                    const isCompleted = completedSkills[skillKey];
+                                    return `
+                                        <div class="skill-item" style="${isCompleted ? 'opacity: 0.7; background: #c6f6d5;' : ''}">
+                                            <span class="skill-name">
+                                                <input type="checkbox" 
+                                                       ${isCompleted ? 'checked' : ''}
+                                                       onchange="toggleSkill('${skillKey}')"
+                                                       style="margin-right: 8px;">
+                                                ${skill.name}
+                                            </span>
+                                            <span class="skill-priority priority-${skill.priority}">
+                                                ${skill.priority === 'high' ? '🔥 必須' : 
+                                                  skill.priority === 'medium' ? '⭐ 推奨' : '💡 参考'}
+                                            </span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                    
+                    <div class="resources-section">
+                        <h4>📚 学習リソース</h4>
+                        ${phase.resources.map(resource => `
+                            <div class="resource-item">
+                                ${resource}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateProgress() {
+            const path = careerPaths[selectedPath];
+            let totalSkills = 0;
+            let completedCount = 0;
+            let highPriorityTotal = 0;
+            let highPriorityCompleted = 0;
+
+            // 経験レベルに応じてフェーズを調整
+            let startPhase = 0;
+            if (selectedExperience === 'intermediate') startPhase = 1;
+            if (selectedExperience === 'senior') startPhase = 2;
+
+            path.phases.slice(startPhase).forEach(phase => {
+                Object.values(phase.skills).forEach(skillCategory => {
+                    skillCategory.forEach(skill => {
+                        totalSkills++;
+                        if (skill.priority === 'high') highPriorityTotal++;
+                        
+                        const skillKey = `${selectedPath}-${phase.title}-${skill.name}`;
+                        if (completedSkills[skillKey]) {
+                            completedCount++;
+                            if (skill.priority === 'high') highPriorityCompleted++;
+                        }
+                    });
+                });
+            });
+
+            const overallProgress = totalSkills > 0 ? Math.round((completedCount / totalSkills) * 100) : 0;
+            const highPriorityProgress = highPriorityTotal > 0 ? Math.round((highPriorityCompleted / highPriorityTotal) * 100) : 0;
+
+            // 進捗統計の更新
+            document.getElementById('progressStats').innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-number">${completedCount}</div>
+                    <div class="stat-label">習得済みスキル</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${totalSkills}</div>
+                    <div class="stat-label">総スキル数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${highPriorityCompleted}</div>
+                    <div class="stat-label">必須スキル習得</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">${overallProgress}%</div>
+                    <div class="stat-label">全体進捗</div>
+                </div>
+            `;
+
+            // 全体進捗バーの更新
+            document.getElementById('overallProgressFill').style.width = `${overallProgress}%`;
+            document.getElementById('progressText').textContent = `全体進捗: ${overallProgress}% (必須スキル: ${highPriorityProgress}%)`;
+        }
+
+        function selectPath(pathKey) {
+            selectedPath = pathKey;
+            renderPathOptions();
+            renderRoadmap();
+            updateProgress();
+        }
+
+        function selectExperience(experienceKey) {
+            selectedExperience = experienceKey;
+            renderExperienceSelector();
+            renderRoadmap();
+            updateProgress();
+        }
+
+        function toggleSkill(skillKey) {
+            if (completedSkills[skillKey]) {
+                delete completedSkills[skillKey];
+            } else {
+                completedSkills[skillKey] = true;
+            }
+            localStorage.setItem('completedSkills', JSON.stringify(completedSkills));
+            updateProgress();
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>
